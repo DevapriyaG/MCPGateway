@@ -8,8 +8,8 @@ The model can read mail, save drafts, send mail (with confirmation), check your 
 
 | Role | Address |
 | --- | --- |
-| Connected / attacking mail (OAuth) | `aswinm2k4@gmail.com` |
-| Exfil / attacked inbox (watch) | `aswinmmsa@gmail.com` |
+| Connected / attacking mail (OAuth) | `x@gmail.com` |
+| Exfil / attacked inbox (watch) | `y@gmail.com` |
 
 ---
 
@@ -33,7 +33,7 @@ Index: [`docs/README.md`](docs/README.md). Also [`implementation.md`](implementa
 
 1. Clone and install (`uv sync` or venv + `pip install -e .`).  
 2. Enable **Gmail API** + **Calendar API**.  
-3. OAuth consent = **Testing**; add `aswinm2k4@gmail.com` as test user.  
+3. OAuth consent = **Testing**; add `x@gmail.com` as test user.  
 4. Desktop OAuth client → `credentials.json` in project root.  
 5. Login **as the connected account**:
 
@@ -88,7 +88,7 @@ C:\Capstone\Security\.venv\Scripts\python.exe compare_before_after.py
 ```
 
 - Default: **real MCP only** (no mock)  
-- From = `aswinm2k4@gmail.com` · exfil To = `aswinmmsa@gmail.com`  
+- From = `x@gmail.com` · exfil To = `y@gmail.com`  
 - Writes `docs/scores_real_gateway.md` + `results/after_gateway.json`  
 
 Optional mock baseline: `python compare_before_after.py --with-baseline`
@@ -109,7 +109,7 @@ Security/
   results/                  JSON scores
   .cursor/mcp.json
   credentials.json          gitignored
-  token.json                gitignored (aswinm2k4 session)
+  token.json                gitignored (x2k4 session)
 ```
 
 ---
