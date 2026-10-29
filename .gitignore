@@ -10,3 +10,7 @@ token.json
 .env.local
 attachments/*
 !attachments/.gitkeep
+approvals/**/*.json
+
+# Keep scored JSON for reports; ignore local caches only
+results/*.log

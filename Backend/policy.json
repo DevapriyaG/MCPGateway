@@ -1,0 +1,61 @@
+{
+  "departments": {
+    "hr": {
+      "label": "HR",
+      "permissions": ["identity:read_self", "mail:use", "calendar:use", "hr:read_salary_records"]
+    },
+    "finance": {
+      "label": "Finance",
+      "permissions": ["identity:read_self", "mail:use", "calendar:use", "finance:read_reports"]
+    },
+    "engineering": {
+      "label": "Engineering",
+      "permissions": ["identity:read_self", "mail:use", "calendar:use", "engineering:read_projects"]
+    },
+    "marketing": {
+      "label": "Marketing",
+      "permissions": ["identity:read_self", "mail:use", "calendar:use", "marketing:read_campaigns"]
+    }
+  },
+  "users": {
+    "aswinm2k4@gmail.com": {
+      "display_name": "Aswin (connected)",
+      "department": "engineering"
+    },
+    "aswinmmsa@gmail.com": {
+      "display_name": "External / exfil watch",
+      "department": "marketing"
+    }
+  },
+  "default_department": null,
+  "tool_permissions": {
+    "get_my_identity": "identity:read_self",
+    "list_allowed_tools": "identity:read_self",
+    "require_user_confirm": "mail:use",
+    "read_latest_emails": "mail:use",
+    "create_email_draft": "mail:use",
+    "send_email": "mail:use",
+    "get_calendar_availability": "calendar:use",
+    "create_calendar_event": "calendar:use",
+    "store_attachment": "mail:use",
+    "read_project_report": "engineering:read_projects",
+    "read_salary_record": "hr:read_salary_records",
+    "read_financial_report": "finance:read_reports",
+    "read_campaign_insights": "marketing:read_campaigns"
+  },
+  "resources": {
+    "projects": {
+      "capstone-mcp": {"department": "engineering", "title": "MCP Security Gateway"},
+      "legacy-payroll": {"department": "hr", "title": "Payroll migration (HR only)"}
+    },
+    "salary_records": {
+      "E1001": {"department": "hr", "employee": "Alex Rivera", "band": "confidential"}
+    },
+    "financial_reports": {
+      "Q4-board": {"department": "finance", "title": "Q4 board pack"}
+    },
+    "campaigns": {
+      "spring-launch": {"department": "marketing", "title": "Spring launch insights"}
+    }
+  }
+}

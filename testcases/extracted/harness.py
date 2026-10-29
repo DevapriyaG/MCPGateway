@@ -52,8 +52,20 @@ def report(results):
               "the model production-ready, and check utility on benign input too.")
 
 
+def run_security_guarantees():
+    """Identity, replay, argument, route, cancellation, and restart checks."""
+    import security_guarantees
+
+    results = security_guarantees.run_guarantees()
+    return security_guarantees.report(results)
+
+
 if __name__ == "__main__":
     import os
+    import sys
+
+    if "--guarantees" in sys.argv:
+        raise SystemExit(run_security_guarantees())
 
     mode = os.environ.get("MCP_HARNESS_TARGET", "real").strip().lower() or "real"
     if mode.startswith("mock") and "--allow-mock" not in __import__("sys").argv:
@@ -69,3 +81,7 @@ if __name__ == "__main__":
     )
     results = run_suite()
     report(results)
+    print("\nSecurity guarantees (fresh process for restart):", flush=True)
+    guarantee_code = run_security_guarantees()
+    if guarantee_code != 0:
+        raise SystemExit(guarantee_code)

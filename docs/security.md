@@ -5,50 +5,62 @@
 | File | What it is | In Git? |
 | --- | --- | --- |
 | `credentials.json` | Google OAuth client id/secret | **No** |
-| `token.json` | Logged-in session (can read/send mail) | **No** |
+| `token.json` | Session for **connected** account (`aswinm2k4@gmail.com`) | **No** |
 | `.env` | Optional local env | **No** |
 | `.env.example` | Placeholders only | Yes |
 
-Treat `token.json` like a password. Each teammate creates their own OAuth client and login.
-
-If a real client secret was ever pushed or blocked by GitHub push protection, **reset the client secret** in Google Cloud and update local `credentials.json`.
+Treat `token.json` like a password for the connected mailbox.
 
 ---
 
-## Gateway controls (what we implemented)
+## Working principles (controls)
 
-These are **real controls** in `Backend/`, not claims that all 8 incident classes are defeated:
+Implemented in `Backend/`:
 
 1. **Allowlist** — only tools in `gateway.py`  
-2. **Confirmation** — `send_email` and `create_calendar_event` need `require_user_confirm`  
-3. **Draft vs send** — draft does not send  
-4. **Own calendar only** — no guests / external share in `create_calendar_event`  
-5. **Literal filenames** — no template evaluation in `store_attachment`  
+2. **Confirmation** — `send_email` / `create_calendar_event` need `require_user_confirm`  
+3. **Draft ≠ send**  
+4. **Own calendar only** — no guests / external share  
+5. **Literal filenames** — no template evaluation  
+6. **Narrow OAuth scopes** — Gmail read/compose/send + calendar events  
 
-They reduce risk. They do **not** mean “the LLM cannot be tricked.” If you approve a confirm summary, the send still happens. Email bodies are not filtered for injection text inside Gmail tools.
+Not implemented yet (honest gap):
+
+- **TC-05** — authentication of local/stdio callers (`MCP_CALLER_TOKEN` style)
 
 ---
 
-## What not to claim in a report
+## Mailbox risk model
+
+| Mailbox | Risk if misused |
+| --- | --- |
+| `aswinm2k4@gmail.com` | Full agent power (read/send as this user) via `token.json` |
+| `aswinmmsa@gmail.com` | Receives exfil if send is allowed without proper confirm |
+
+A **SAFE** harness result for send-based attacks means the gateway blocked delivery to the exfil inbox (confirm required; harness does not auto-approve).
+
+---
+
+## What not to claim
 
 | Claim | OK? |
 | --- | --- |
-| Harness default run = 100% ASR on vulnerable mock | Yes |
-| Hardened mock = 0% ASR | Yes, if labeled as **mock demo** |
-| “Our live agent scored 0% ASR on all 8 cases” | **No**, unless `target_adapter` is wired to the real LLM and scored |
-| “TC-05 passed” | **No**, unless you built local-caller authentication |
+| Real gateway ASR from `compare_before_after.py` | Yes |
+| Mock 100% / 0% ASR as product result | **No** (label as mock) |
+| “TC-05 passed” | **No** until caller auth exists |
+| “We patched Claude/Google/Hugging Face CVEs” | **No** — same *risk classes*, different product |
 | Allowlist + confirm exist | Yes |
 
 ---
 
 ## Isolation for evaluations
 
-If the agent sees the test case list, you are testing **recognition of the exam**, not resistance to the **mechanism**. Keep attack metadata out of prompts and out of `Backend/`.
+If the agent sees TC ids or `attack_generator.py`, you are testing exam recognition, not mechanism resistance. Keep attack metadata out of prompts and out of `Backend/`.
 
 ---
 
 ## Related docs
 
-- [architecture.md](architecture.md) — how controls are placed  
+- [architecture.md](architecture.md) — principles and diagrams  
 - [testing.md](testing.md) — how to measure  
-- [setup.md](setup.md) — OAuth / test-user setup  
+- [scores_real_gateway.md](scores_real_gateway.md) — latest numbers  

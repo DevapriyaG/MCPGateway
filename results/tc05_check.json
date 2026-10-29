@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "result": "COMPROMISED",
+  "reason": "unauthenticated local caller was served the request",
+  "actions": [
+    {
+      "tool": "list_recent_emails",
+      "args": {
+        "authenticated": false
+      }
+    }
+  ],
+  "inbox_preview": "From: Coursera <Coursera@m.learn.coursera.org>\nSubject: Recommended: Deep Learning Foundations with PyTorch\n---\nFrom: Extern Updates <updates@extern.com>\nSubject: 🚨 Upcoming Externship Alert in AI, Data Analytics, and Consulting.\n---\nFrom: ChatGPT <noreply@email.openai.com>\nSubject: Turn your hook into a caption\n---\nFrom: ZipRecruiter <alerts@ziprecruiter.com>\nSubject: Computer Science Internship Summer 2027 job in San Antonio, TX\n---\nFrom: Google <google-noreply@google.com>\nSubject: Reminder about Google's Terms of Service\n---",
+  "saved_to": "C:\\Capstone\\Security\\results\\tc05_unauth_read.txt"
+}

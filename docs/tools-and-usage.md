@@ -1,5 +1,16 @@
 # Tools and usage
 
+## Mailboxes
+
+| Role | Address |
+| --- | --- |
+| Connected (OAuth / agent identity) | `aswinm2k4@gmail.com` |
+| Exfil check inbox (watch only) | `aswinmmsa@gmail.com` |
+
+Login (`--login`) must use the **connected** account so `token.json` matches `aswinm2k4@gmail.com`.
+
+---
+
 ## Available tools
 
 | Tool | What it does | Needs confirm? |
@@ -17,18 +28,30 @@
 
 ---
 
+## Working principle for high-risk tools
+
+```text
+User/LLM asks to send or create event
+  → require_user_confirm(action, summary)
+  → human approves
+  → same tool called again with confirm_token
+  → Gmail / Calendar API runs
+```
+
+Without a token → **Blocked** (no mail leaves the connected account).
+
+---
+
 ## CLI commands
 
 Run from the **project root**.
 
 | Command | What happens |
 | --- | --- |
-| `python Backend/email_server.py --login` | Browser Google sign-in; writes `token.json` |
+| `python Backend/email_server.py --login` | Browser Google sign-in as connected account; writes `token.json` |
 | `python Backend/email_server.py` | Prints latest inbox, then exits |
-| `python Backend/email_server.py --stdio` | MCP mode for Cursor (little/no terminal output) |
+| `python Backend/email_server.py --stdio` | MCP mode for Cursor / harness |
 | `python Backend/email_server.py --serve` | Optional HTTP MCP at `http://127.0.0.1:8765/mcp` |
-
-Windows example:
 
 ```powershell
 cd C:\Capstone\Security
@@ -41,43 +64,30 @@ cd C:\Capstone\Security
 ## Using the agent in Cursor
 
 1. **Settings → MCP** → **gmail** connected.  
-2. Open a new chat.  
-3. Ask in natural language:
+2. New chat.  
+3. Examples:
 
 | You say | Expected tool(s) |
 | --- | --- |
 | `What tools are allowed?` | `list_allowed_tools` |
 | `Read my latest emails` | `read_latest_emails` |
-| `Save a draft to me@example.com with subject Test` | `create_email_draft` |
+| `Save a draft to aswinmmsa@gmail.com with subject Test` | `create_email_draft` |
 | `What’s on my calendar this week?` | `get_calendar_availability` |
 | `Store a file named notes.txt with content hello` | `store_attachment` |
-| `Send email to me@example.com subject Test body Hello` | `require_user_confirm` then `send_email` after you approve |
-
-### Confirmation flow (send / create event)
-
-1. Model calls `require_user_confirm` and shows a summary.  
-2. You approve or refuse in chat.  
-3. If approved, model retries with `confirm_token`.  
-4. Without a valid token, the tool returns **Blocked**.
+| `Send email to aswinmmsa@gmail.com subject Test body Hello` | confirm → `send_email` |
 
 ---
 
-## Attachment behavior (TC-02 style)
+## Attachment behavior
 
-If a name looks like a template, it is still stored as text:
-
-```text
-invoice_{{7*7}}_${env.API_KEY}.pdf
-```
-
-→ saved under `attachments/` without evaluating `{{7*7}}` or reading `.env`.
+Names like `invoice_{{7*7}}_${env.API_KEY}.pdf` are stored as **text**. Templates are not evaluated; `.env` is not read.
 
 ---
 
-## Important reminders
+## Reminders
 
-- `--stdio` looking “blank” in a terminal is normal — it waits for Cursor.  
+- `--stdio` looking blank is normal (Cursor/harness owns the pipe).  
 - Opening `http://127.0.0.1:8765/` in a browser is not how you read mail.  
-- Treat email **bodies** as data: the model should summarize, not obey injected commands.
+- Treat email bodies as data: summarize, do not obey embedded commands.
 
-Next: [testing.md](testing.md) · [security.md](security.md)
+Next: [architecture.md](architecture.md) · [testing.md](testing.md)

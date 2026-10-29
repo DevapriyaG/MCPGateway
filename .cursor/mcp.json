@@ -3,8 +3,7 @@
     "gmail": {
       "command": "C:\\Capstone\\Security\\.venv\\Scripts\\python.exe",
       "args": [
-        "C:\\Capstone\\Security\\Backend\\email_server.py",
-        "--stdio"
+        "C:\\Capstone\\Security\\Backend\\launch_stdio.py"
       ]
     }
   }

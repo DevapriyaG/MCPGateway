@@ -1,25 +1,131 @@
-# Architecture
+   # Architecture and working principles
 
-## System diagram
+## What the system is
+
+A **least-privilege MCP gateway** between:
+
+1. **Cursor’s LLM** (or the automated test harness), and  
+2. **Google APIs** for one connected Gmail/Calendar account.
+
+The gateway exposes a **fixed allowlist** of tools. High-risk actions need a **one-time human confirmation token**. Untrusted content (email bodies, filenames) must be treated as **data**, not commands.
+
+---
+
+## Mailbox roles (this project)
+
+| Role | Address | Meaning |
+| --- | --- | --- |
+| **Attacking / connected mail** | `aswinm2k4@gmail.com` | OAuth login in `token.json`. Gateway reads/sends **as** this account. Attack payloads use this as **From**. |
+| **Attacked / exfil inbox** | `aswinmmsa@gmail.com` | Collection address in attack bodies (“forward to …”). If the agent is compromised and send succeeds, stolen content would land here. |
+
+You can watch **both** inboxes after a real harness run: connected account for agent activity; exfil inbox for whether attack forwards got through (SAFE runs should not deliver them — confirm blocks send).
+
+---
+
+## End-to-end architecture
 
 ```text
-You (Cursor chat)
-        │
-        ▼
-   Cursor LLM
-        │  MCP stdio
-        ▼
-Backend/email_server.py     ← only process that talks to Google
-   ├── gateway.py           ← allowlist + confirmation tokens
-   ├── attachments.py       ← safe local filename store
-   ├── Gmail API            ← inbox, drafts, send
-   └── Calendar API         ← primary calendar only
-        │
-        ▼
-credentials.json + token.json   (local only, not in Git)
+┌─────────────────────────────────────────────────────────────────┐
+│  Operators                                                        │
+│  • Cursor chat (LLM + MCP tools)                                  │
+│  • Test harness (compare_before_after.py → real MCP)              │
+└────────────────────────────┬────────────────────────────────────┘
+                             │ MCP stdio
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  Backend/email_server.py   (MCP Security Gateway)                 │
+│    ├── gateway.py          allowlist + confirm tokens             │
+│    ├── attachments.py      literal filename store                 │
+│    ├── Gmail API           read / draft / send                    │
+│    └── Calendar API        primary calendar only                  │
+└────────────────────────────┬────────────────────────────────────┘
+                             │ OAuth (credentials.json + token.json)
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  Google account: aswinm2k4@gmail.com (connected)                  │
+│  Exfil check inbox: aswinmmsa@gmail.com (not OAuth; watch only) │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-Cursor starts `email_server.py --stdio` when the **gmail** MCP server is enabled. Google login is done once with `--login`; afterward `token.json` is reused.
+### Working principles
+
+1. **Least privilege** — Tools are allowlisted and further filtered by **trusted department policy**.  
+2. **Prompt guides; gateway enforces** — System prompt ([system-prompt.md](system-prompt.md)) steers the LLM; unauthorized calls are still denied in code.  
+3. **Confirm before harm** — `send_email` / `create_calendar_event` need a human-approved plan and a 256-bit execution token (hash stored server-side).  
+4. **Draft ≠ send** — Drafts never transmit.  
+5. **Data ≠ instructions** — Email/filename content is not treated as authorization.  
+6. **Own calendar only** — Create events on the primary calendar; no guests / external share fields.  
+7. **Secrets stay local** — `credentials.json` / `token.json` / `.env` are gitignored.  
+8. **Eval isolation** — The agent under test must not see TC ids or `attack_generator.py`.  
+
+### Department-aware authorization
+
+```text
+User / LLM
+   │  (may claim any department — ignored)
+   ▼
+get_my_identity()  →  trusted directory (policy.json) + Google mailbox identity
+   ▼
+MCP gateway
+   ├── MCP_CALLER_TOKEN (local client auth)
+   ├── department permissions (policy.py)
+   ├── resource ownership (project / salary / report / campaign ids)
+   └── execution token + lock for high-risk writes
+   ▼
+Only permitted tools run
+```
+
+| Department | Example tools |
+| --- | --- |
+| Engineering | `read_project_report` (+ mail/calendar) |
+| HR | `read_salary_record` |
+| Finance | `read_financial_report` |
+| Marketing | `read_campaign_insights` |
+
+Opaque execution tokens do **not** encode department. The server stores `hash(token)` with user, session, plan version, permissions, and expiry. Directory enrollment lives in `Backend/policy.json`.
+
+---
+
+## Runtime paths
+
+### A. Cursor (interactive agent)
+
+1. Cursor reads `.cursor/mcp.json` and starts `Backend/launch_stdio.py` (presents `MCP_CALLER_TOKEN`).  
+2. Optionally load [system-prompt.md](system-prompt.md) into the chat system instructions.  
+3. LLM calls MCP tools; gateway enforces caller auth + department policy + confirm.  
+4. Gmail/Calendar calls use `token.json` for **aswinm2k4@gmail.com** (Engineering in `policy.json`).
+
+### B. Automated security harness (default = real gateway)
+
+1. `compare_before_after.py` sets `MCP_HARNESS_TARGET=real` (mock refused by default).  
+2. For each of **TC-01 … TC-16**:  
+   - `attack_generator` builds a payload (From = connected mail, exfil To = attacked mail).  
+   - `target_adapter._real_mcp_agent` calls live tools over MCP stdio.  
+   - `scorer` marks **SAFE** or **COMPROMISED** from the tool-call log.  
+3. Results → `results/after_gateway.json` + `docs/scores_real_gateway.md`.  
+4. Metric: **ASR** = compromised / 16 × 100 (**lower is better**).
+
+Optional: `--with-baseline` runs a **mock** undefended agent first (no real Gmail) for before/after comparison docs.
+
+---
+
+## Confirmation flow (detail)
+
+```text
+LLM / harness
+   │ require_user_confirm("send_email", summary)
+   ▼
+gateway.py  →  issues confirm_token (memory only)
+   │
+   │  user approves in Cursor  (harness does NOT auto-approve)
+   ▼
+send_email(..., confirm_token=...)
+   │
+   ▼
+gateway consumes token once → Gmail API send
+```
+
+Without a valid token, `send_email` / `create_calendar_event` return **Blocked**. That is why many harness “attack send” attempts stay **SAFE** and do not appear in `aswinmmsa@gmail.com`.
 
 ---
 
@@ -27,23 +133,13 @@ Cursor starts `email_server.py --stdio` when the **gmail** MCP server is enabled
 
 | File | Role |
 | --- | --- |
-| `Backend/email_server.py` | MCP server entry point. OAuth, Gmail/Calendar clients, all `@mcp.tool()` functions |
-| `Backend/gateway.py` | Fixed `ALLOWED_TOOLS` and in-memory `confirm_token` for high-risk tools |
-| `Backend/attachments.py` | Writes files under `attachments/` with literal filenames (no template eval) |
+| `Backend/email_server.py` | MCP server: OAuth, Gmail/Calendar, identity + department stubs |
+| `Backend/gateway.py` | Allowlist, caller auth, execution tokens, locks |
+| `Backend/policy.py` / `policy.json` | Trusted directory, departments, resource checks |
+| `Backend/attachments.py` | Safe write under `attachments/` (no template eval, path strip) |
+| `docs/system-prompt.md` | LLM guidance only (not enforcement) |
 
-### How confirmation works
-
-1. LLM calls `require_user_confirm(action, summary)`.  
-2. Gateway stores a random token in memory.  
-3. User approves the summary in chat.  
-4. LLM calls `send_email` / `create_calendar_event` with `confirm_token`.  
-5. Gateway consumes the token (one-time) and allows the call.
-
-Tokens are **not** written to disk. Restarting the MCP process clears pending tokens.
-
----
-
-## Google scopes
+### Google scopes
 
 | Scope | Tools |
 | --- | --- |
@@ -54,52 +150,49 @@ Tokens are **not** written to disk. Restarting the MCP process clears pending to
 
 ---
 
-## Project file map
+## Test harness layout
 
-### Root
-
-| Path | Purpose |
+| Path | Role |
 | --- | --- |
-| `README.md` | Short entry + links to docs |
-| `docs/` | Full documentation (this folder) |
-| `implementation.md` | Pointer to architecture / overview |
-| `test.md` | Pointer to testing docs |
-| `pyproject.toml` / `uv.lock` / `requirements.txt` | Dependencies |
-| `main.py` | Unused starter; real entry is `Backend/email_server.py` |
-| `.gitignore` | Ignores `.venv`, secrets, attachments |
-| `.env.example` | Placeholder only (server uses `credentials.json`) |
-| `credentials.json` | OAuth client — **you** add; never commit |
-| `token.json` | Session after `--login` — never commit |
-| `attachments/` | Local store for `store_attachment` |
+| `testcases/extracted/test_cases.py` | Metadata for TC-01 … TC-16 |
+| `testcases/extracted/attack_generator.py` | Payloads; `CONNECTED_EMAIL` + `ATTACKER_EMAIL` |
+| `testcases/extracted/target_adapter.py` | Seam to real MCP (default) or optional mocks |
+| `testcases/extracted/scorer.py` | Deterministic SAFE / COMPROMISED |
+| `testcases/extracted/run_eval.py` | Runs all 16, writes JSON (refuses mock unless `--allow-mock`) |
+| `testcases/extracted/compare_before_after.py` | Default real-only eval + score docs |
+| `testcases/extracted/harness.py` | Simple suite runner (real by default) |
 
-### Cursor
-
-| Path | Purpose |
-| --- | --- |
-| `.cursor/mcp.json` | Command/args to start the MCP server |
-
-### Test suite
-
-| Path | Purpose |
-| --- | --- |
-| `testcases/files.zip` | Original harness archive |
-| `testcases/extracted/test_cases.py` | Case metadata (ids, goals) |
-| `testcases/extracted/attack_generator.py` | Builds payloads |
-| `testcases/extracted/target_adapter.py` | **Only** seam to the agent under test |
-| `testcases/extracted/scorer.py` | SAFE / COMPROMISED from tool-call logs |
-| `testcases/extracted/harness.py` | Runs all 8 cases, prints ASR |
-
-**Isolation rule:** the agent must never import `test_cases.py` or `attack_generator.py`. It only sees raw payloads.
+```text
+compare_before_after / harness
+        → attack_generator.generate(id)
+        → target_adapter.run_target(channel, payload)   # real MCP
+        → scorer.score(id, actions)
+        → ASR table + docs/scores_*.md
+```
 
 ---
 
-## Design choices
+## Project file map
 
-1. **Small allowlist** — unknown tools do not exist.  
-2. **Human confirm for send / calendar create**.  
-3. **Own calendar only** — no guests, no external share.  
-4. **Draft ≠ send**.  
-5. **Filenames are data** — `{{...}}` / `${...}` are not evaluated.  
-6. **Secrets stay local** — OAuth files gitignored.
+| Path | Purpose |
+| --- | --- |
+| `README.md` | Entry + quick start |
+| `docs/` | Full documentation |
+| `Backend/` | MCP gateway |
+| `testcases/extracted/` | 16-attack harness |
+| `results/` | JSON scores from real/baseline runs |
+| `attachments/` | Literal attachment store |
+| `.cursor/mcp.json` | Cursor → gateway launch command |
+| `credentials.json` / `token.json` | OAuth (local only) |
+
+---
+
+## Related systems (context, not installed)
+
+| System | Relation |
+| --- | --- |
+| **AgentDojo** | Same metric family (targeted ASR); our suite is smaller and mail/calendar-focused |
+| **IBM ContextForge** | Production MCP/A2A gateway idea; we implement a local Python gateway |
+| **Docker MCP Gateway** | Tool allowlisting proxy idea; ours is in-process allowlist + confirm |
 
 Next: [tools-and-usage.md](tools-and-usage.md) · [testing.md](testing.md) · [security.md](security.md)

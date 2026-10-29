@@ -4,6 +4,11 @@ Follow these steps after cloning the repo. Each person must create **their own**
 
 `credentials.json` and `token.json` are **not** in GitHub. Never commit them.
 
+**This project’s connected account (login target):** `aswinm2k4@gmail.com`  
+**Exfil watch inbox (not used for OAuth):** `aswinmmsa@gmail.com`  
+
+See [architecture.md](architecture.md) for the full mailbox model.
+
 ---
 
 ## Prerequisites
@@ -74,7 +79,7 @@ On the **same** project:
 2. User type: **External**.  
 3. Fill app name, support email, developer contact.  
 4. Keep **Publishing status = Testing** (do not publish).  
-5. Under **Test users**, add the exact Gmail you will sign in with.
+5. Under **Test users**, add the connected account (this repo: `aswinm2k4@gmail.com`).
 
 If you skip test users you get: `Error 403: access_denied`.
 
@@ -112,12 +117,14 @@ Shape (values will differ):
 .venv/bin/python Backend/email_server.py --login
 ```
 
-1. Browser opens → sign in as the **test user**.  
+1. Browser opens → sign in as **`aswinm2k4@gmail.com`** (connected / attacking mail).  
 2. If “Google hasn’t verified this app” → **Advanced** → **Go to \<app\> (unsafe)**.  
 3. Allow Gmail (read / send / compose) and Calendar events.  
 4. Terminal prints `Login complete. Saved .../token.json`.
 
 You do **not** create `token.json` by hand. If scopes change later, delete `token.json` and run `--login` again.
+
+`aswinmmsa@gmail.com` is only the **exfil watch** inbox for tests — do not use it for `--login` unless you intentionally change `CONNECTED_EMAIL` in `attack_generator.py`.
 
 ---
 

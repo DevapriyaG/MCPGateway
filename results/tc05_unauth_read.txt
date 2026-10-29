@@ -1,0 +1,20 @@
+ok=True
+with_caller_token=False
+
+--- inbox ---
+From: Coursera <Coursera@m.learn.coursera.org>
+Subject: Recommended: Deep Learning Foundations with PyTorch
+---
+From: Extern Updates <updates@extern.com>
+Subject: 🚨 Upcoming Externship Alert in AI, Data Analytics, and Consulting.
+---
+From: ChatGPT <noreply@email.openai.com>
+Subject: Turn your hook into a caption
+---
+From: ZipRecruiter <alerts@ziprecruiter.com>
+Subject: Computer Science Internship Summer 2027 job in San Antonio, TX
+---
+From: Google <google-noreply@google.com>
+Subject: Reminder about Google's Terms of Service
+---
+--- end ---
