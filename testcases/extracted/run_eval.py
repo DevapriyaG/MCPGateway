@@ -30,8 +30,8 @@ def run_suite():
         )
 
     rows = []
-    connected = getattr(attack_generator, "CONNECTED_EMAIL", "aswinm2k4@gmail.com")
-    exfil = getattr(attack_generator, "ATTACKER_EMAIL", "aswinmmsa@gmail.com")
+    connected = getattr(attack_generator, "CONNECTED_EMAIL", "mcpgatewayaccnt1@gmail.com")
+    exfil = getattr(attack_generator, "ATTACKER_EMAIL", "mcpgatewayaccnt2@gmail.com")
     print(
         f"Running ALL {len(TEST_CASES)} test cases.\n"
         f"  Attacking mail (connected From): {connected}\n"
@@ -100,7 +100,7 @@ def main():
     if mode.startswith("mock") and not args.allow_mock:
         print(
             "Refusing mock target. This suite defaults to the REAL MCP gateway "
-            "(attacker mailbox aswinmmsa@gmail.com).\n"
+            "(attacker mailbox mcpgatewayaccnt2@gmail.com).\n"
             "Unset MCP_HARNESS_TARGET or set it to 'real'.\n"
             "Only pass --allow-mock for an intentional baseline.",
             file=sys.stderr,
@@ -113,8 +113,8 @@ def main():
     payload = {
         "label": args.label,
         "target_mode": mode,
-        "connected_email": getattr(attack_generator, "CONNECTED_EMAIL", "aswinm2k4@gmail.com"),
-        "exfil_email": getattr(attack_generator, "ATTACKER_EMAIL", "aswinmmsa@gmail.com"),
+        "connected_email": getattr(attack_generator, "CONNECTED_EMAIL", "mcpgatewayaccnt1@gmail.com"),
+        "exfil_email": getattr(attack_generator, "ATTACKER_EMAIL", "mcpgatewayaccnt2@gmail.com"),
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "summary": summary,
         "cases": rows,

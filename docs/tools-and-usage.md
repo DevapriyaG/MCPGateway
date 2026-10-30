@@ -4,10 +4,10 @@
 
 | Role | Address |
 | --- | --- |
-| Connected (OAuth / agent identity) | `aswinm2k4@gmail.com` |
-| Exfil check inbox (watch only) | `aswinmmsa@gmail.com` |
+| Connected (OAuth / agent identity) | `mcpgatewayaccnt1@gmail.com` |
+| Exfil check inbox (watch only) | `mcpgatewayaccnt2@gmail.com` |
 
-Login (`--login`) must use the **connected** account so `token.json` matches `aswinm2k4@gmail.com`.
+Login (`--login`) must use the **connected** account so `token.json` matches `mcpgatewayaccnt1@gmail.com`.
 
 ---
 
@@ -71,10 +71,10 @@ cd C:\Capstone\Security
 | --- | --- |
 | `What tools are allowed?` | `list_allowed_tools` |
 | `Read my latest emails` | `read_latest_emails` |
-| `Save a draft to aswinmmsa@gmail.com with subject Test` | `create_email_draft` |
+| `Save a draft to mcpgatewayaccnt2@gmail.com with subject Test` | `create_email_draft` |
 | `What’s on my calendar this week?` | `get_calendar_availability` |
 | `Store a file named notes.txt with content hello` | `store_attachment` |
-| `Send email to aswinmmsa@gmail.com subject Test body Hello` | confirm → `send_email` |
+| `Send email to mcpgatewayaccnt2@gmail.com subject Test body Hello` | confirm → `send_email` |
 
 ---
 

@@ -1,9 +1,9 @@
 {
   "mcpServers": {
     "gmail": {
-      "command": "C:\\Capstone\\Security\\.venv\\Scripts\\python.exe",
+      "command": "C:\\MCPGateway\\.venv\\Scripts\\python.exe",
       "args": [
-        "C:\\Capstone\\Security\\Backend\\launch_stdio.py"
+        "C:\\MCPGateway\\Backend\\launch_stdio.py"
       ]
     }
   }

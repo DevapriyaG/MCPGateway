@@ -1,7 +1,7 @@
 """
 Attack evaluation against the REAL MCP gateway (default).
 
-Default (what you want for checking aswinmmsa@gmail.com):
+Default (what you want for checking mcpgatewayaccnt2@gmail.com):
   python compare_before_after.py
   -> MCP_HARNESS_TARGET=real only (NO mock)
 
@@ -26,8 +26,8 @@ if not PYTHON.exists():
 
 RESULTS = ROOT / "results"
 DOCS = ROOT / "docs"
-CONNECTED = "aswinm2k4@gmail.com"  # attacking mail / OAuth account
-EXFIL = "aswinmmsa@gmail.com"      # attacked / collection inbox
+CONNECTED = "mcpgatewayaccnt1@gmail.com"  # attacking mail / OAuth account
+EXFIL = "mcpgatewayaccnt2@gmail.com"      # attacked / collection inbox
 
 
 def run_phase(label: str, target: str, out_json: Path) -> dict:
@@ -139,7 +139,7 @@ def write_compare_doc(before: dict, after: dict) -> Path:
     lines = [
         "# Before vs after MCP gateway (16 attacks)",
         "",
-        f"AFTER uses the **real** gateway. Attacker mailbox: `{ATTACKER}`.",
+        f"AFTER uses the **real** gateway. Attacker mailbox: `{EXFIL}`.",
         "",
         "| Phase | Target | Compromised | Safe | ASR | Defense |",
         "| --- | --- | ---: | ---: | ---: | ---: |",
@@ -178,7 +178,7 @@ def main():
 
     after_json = RESULTS / "after_gateway.json"
 
-    # Default: REAL gateway only (so you can check aswinmmsa@gmail.com).
+    # Default: REAL gateway only (so you can check mcpgatewayaccnt2@gmail.com).
     after = run_phase("after", "real", after_json)
     real_doc = write_real_doc(after)
     print(f"Wrote REAL doc: {real_doc}", flush=True)

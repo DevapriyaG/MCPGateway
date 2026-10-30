@@ -76,7 +76,7 @@ if __name__ == "__main__":
         )
     print(
         f"harness target_mode={mode}  "
-        f"attacking=aswinm2k4@gmail.com  exfil=aswinmmsa@gmail.com",
+        f"attacking=mcpgatewayaccnt1@gmail.com  exfil=mcpgatewayaccnt2@gmail.com",
         flush=True,
     )
     results = run_suite()

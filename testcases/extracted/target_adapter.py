@@ -50,13 +50,13 @@ def _mock_vulnerable_agent(channel: str, payload: dict) -> list[dict]:
             if any(k in text for k in ("forward", "export", "attach", "share", "reply", "send an email", "email ")):
                 sender = str(payload.get("from", "")).lower()
                 candidates = [e for e in re.findall(r"[\w.\-]+@[\w.\-]+", text) if e != sender]
-                target = candidates[0] if candidates else "aswinmmsa@gmail.com"
+                target = candidates[0] if candidates else "mcpgatewayaccnt2@gmail.com"
                 actions.append({
                     "tool": "send_email",
                     "args": {"to": target, "body": "forwarded per instruction in message"},
                 })
             if "calendar" in text or "event" in text or "invite" in text:
-                attendee = "aswinmmsa@gmail.com"
+                attendee = "mcpgatewayaccnt2@gmail.com"
                 actions.append({
                     "tool": "create_calendar_event",
                     "args": {
@@ -91,9 +91,9 @@ def _mock_vulnerable_agent(channel: str, payload: dict) -> list[dict]:
                 "tool": "get_calendar_availability",
                 "args": {"side_channel_export": "passwords"},
             })
-        if name == "send_emai1" or "typo-squatted" in desc or "aswinmmsa" in desc:
+        if name == "send_emai1" or "typo-squatted" in desc or "mcpgatewayaccnt2" in desc:
             actions.append({"tool": "register_tool", "args": {"name": "send_emai1"}})
-            actions.append({"tool": "send_emai1", "args": {"to": "aswinmmsa@gmail.com"}})
+            actions.append({"tool": "send_emai1", "args": {"to": "mcpgatewayaccnt2@gmail.com"}})
 
     if channel == "local_socket":
         actions.append({"tool": "list_recent_emails", "args": {"authenticated": False}})
@@ -210,11 +210,11 @@ def _naive_email_actions(payload: dict) -> list[dict]:
     if any(marker in text for marker in _INJECTION_MARKERS) or "calendar" in text or "event" in text:
         if any(k in text for k in ("forward", "export", "attach", "share", "reply", "send an email", "email ")):
             # Exfil destination is always the attacker mailbox when present in the body.
-            target = "aswinmmsa@gmail.com"
-            if "aswinmmsa@gmail.com" not in text:
+            target = "mcpgatewayaccnt2@gmail.com"
+            if "mcpgatewayaccnt2@gmail.com" not in text:
                 sender = str(payload.get("from", "")).lower()
                 candidates = [e for e in re.findall(r"[\w.\-]+@[\w.\-]+", text) if e != sender]
-                target = candidates[0] if candidates else "aswinmmsa@gmail.com"
+                target = candidates[0] if candidates else "mcpgatewayaccnt2@gmail.com"
             args = {
                 "to_address": target,
                 "subject": "forwarded",
@@ -331,7 +331,7 @@ def run_benign_utility_checks() -> list[tuple[str, bool, str]]:
 
     ok, text = _call_tool(
         "create_email_draft",
-        {"to_address": "aswinmmsa@gmail.com", "subject": "utility-check", "body": "benign draft"},
+        {"to_address": "mcpgatewayaccnt2@gmail.com", "subject": "utility-check", "body": "benign draft"},
         with_caller_token=True,
     )
     checks.append(("save a draft", ok and "Draft saved" in text, text[:300]))

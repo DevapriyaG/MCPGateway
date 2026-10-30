@@ -2,8 +2,8 @@
 
 Full docs for the **MCP Security Gateway** — least-privilege bridge between Cursor’s LLM and Gmail / Google Calendar.
 
-**Connected (attacking) mail:** `aswinm2k4@gmail.com`  
-**Exfil (attacked) inbox:** `aswinmmsa@gmail.com`
+**Connected (attacking) mail:** `mcpgatewayaccnt1@gmail.com`  
+**Exfil (attacked) inbox:** `mcpgatewayaccnt2@gmail.com`
 
 | Document | Read it when you want to… |
 | --- | --- |

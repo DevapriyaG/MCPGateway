@@ -24,8 +24,8 @@ It does **not** expose finance, payroll, passwords, shell, or other people’s c
 
 | Role | Address | You use it to… |
 | --- | --- | --- |
-| Connected / attacking mail | `aswinm2k4@gmail.com` | OAuth login; agent operates as this user; attack **From** |
-| Exfil / attacked inbox | `aswinmmsa@gmail.com` | See whether attack forwards arrived |
+| Connected / attacking mail | `mcpgatewayaccnt1@gmail.com` | OAuth login; agent operates as this user; attack **From** |
+| Exfil / attacked inbox | `mcpgatewayaccnt2@gmail.com` | See whether attack forwards arrived |
 
 ---
 

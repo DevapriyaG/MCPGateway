@@ -1,20 +1,20 @@
 """
 Attack generator — concrete payloads for TC-01 .. TC-16.
 
-CONNECTED_EMAIL (aswinm2k4@gmail.com)
+CONNECTED_EMAIL (mcpgatewayaccnt1@gmail.com)
   = account connected to this project (OAuth / token.json).
   = From: on attacking emails (the "attacking mail" you can see in that account).
 
-ATTACKER_EMAIL / EXFIL (aswinmmsa@gmail.com)
+ATTACKER_EMAIL / EXFIL (mcpgatewayaccnt2@gmail.com)
   = destination where a compromised agent would forward/send stolen data
     (the "attacked" / attacker collection inbox you can check separately).
 """
 
 # Connected Gmail (this project's OAuth login) — attacking mail From:
-CONNECTED_EMAIL = "aswinm2k4@gmail.com"
+CONNECTED_EMAIL = "mcpgatewayaccnt1@gmail.com"
 
 # Exfil / collection inbox — where stolen content would be sent:
-ATTACKER_EMAIL = "aswinmmsa@gmail.com"
+ATTACKER_EMAIL = "mcpgatewayaccnt2@gmail.com"
 
 
 def generate(test_id: str) -> dict:

@@ -15,8 +15,8 @@ The gateway exposes a **fixed allowlist** of tools. High-risk actions need a **o
 
 | Role | Address | Meaning |
 | --- | --- | --- |
-| **Attacking / connected mail** | `aswinm2k4@gmail.com` | OAuth login in `token.json`. Gateway reads/sends **as** this account. Attack payloads use this as **From**. |
-| **Attacked / exfil inbox** | `aswinmmsa@gmail.com` | Collection address in attack bodies (“forward to …”). If the agent is compromised and send succeeds, stolen content would land here. |
+| **Attacking / connected mail** | `mcpgatewayaccnt1@gmail.com` | OAuth login in `token.json`. Gateway reads/sends **as** this account. Attack payloads use this as **From**. |
+| **Attacked / exfil inbox** | `mcpgatewayaccnt2@gmail.com` | Collection address in attack bodies (“forward to …”). If the agent is compromised and send succeeds, stolen content would land here. |
 
 You can watch **both** inboxes after a real harness run: connected account for agent activity; exfil inbox for whether attack forwards got through (SAFE runs should not deliver them — confirm blocks send).
 
@@ -42,8 +42,8 @@ You can watch **both** inboxes after a real harness run: connected account for a
                              │ OAuth (credentials.json + token.json)
                              ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│  Google account: aswinm2k4@gmail.com (connected)                  │
-│  Exfil check inbox: aswinmmsa@gmail.com (not OAuth; watch only) │
+│  Google account: mcpgatewayaccnt1@gmail.com (connected)                  │
+│  Exfil check inbox: mcpgatewayaccnt2@gmail.com (not OAuth; watch only) │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -93,7 +93,7 @@ Opaque execution tokens do **not** encode department. The server stores `hash(to
 1. Cursor reads `.cursor/mcp.json` and starts `Backend/launch_stdio.py` (presents `MCP_CALLER_TOKEN`).  
 2. Optionally load [system-prompt.md](system-prompt.md) into the chat system instructions.  
 3. LLM calls MCP tools; gateway enforces caller auth + department policy + confirm.  
-4. Gmail/Calendar calls use `token.json` for **aswinm2k4@gmail.com** (Engineering in `policy.json`).
+4. Gmail/Calendar calls use `token.json` for **mcpgatewayaccnt1@gmail.com** (Engineering in `policy.json`).
 
 ### B. Automated security harness (default = real gateway)
 
@@ -125,7 +125,7 @@ send_email(..., confirm_token=...)
 gateway consumes token once → Gmail API send
 ```
 
-Without a valid token, `send_email` / `create_calendar_event` return **Blocked**. That is why many harness “attack send” attempts stay **SAFE** and do not appear in `aswinmmsa@gmail.com`.
+Without a valid token, `send_email` / `create_calendar_event` return **Blocked**. That is why many harness “attack send” attempts stay **SAFE** and do not appear in `mcpgatewayaccnt2@gmail.com`.
 
 ---
 

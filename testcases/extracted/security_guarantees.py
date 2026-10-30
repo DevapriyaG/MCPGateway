@@ -32,11 +32,11 @@ sys.path.insert(0, str(ROOT / "Backend"))
 import gateway  # noqa: E402
 import policy  # noqa: E402
 
-USER = "aswinm2k4@gmail.com"
-OTHER_USER = "aswinmmsa@gmail.com"
+USER = "mcpgatewayaccnt1@gmail.com"
+OTHER_USER = "mcpgatewayaccnt2@gmail.com"
 SESSION = "ab" * 32
 FIELDS = {
-    "to_address": "aswinmmsa@gmail.com",
+    "to_address": "mcpgatewayaccnt2@gmail.com",
     "subject": "stolen",
     "body": "subjects",
 }
@@ -186,8 +186,8 @@ def run_guarantees() -> list[tuple[str, str, str]]:
             else f"session cancellation did not hold: exact={cancelled['exact']!r} read={cancelled['locked_read']!r}",
         )
 
-        eng = "aswinm2k4@gmail.com"
-        mkt = "aswinmmsa@gmail.com"
+        eng = "mcpgatewayaccnt1@gmail.com"
+        mkt = "mcpgatewayaccnt2@gmail.com"
         ok_project = gateway.authorize_session_tool(eng, "read_project_report", {"project_id": "capstone-mcp"})
         record(
             "SG-07",

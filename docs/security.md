@@ -5,7 +5,7 @@
 | File | What it is | In Git? |
 | --- | --- | --- |
 | `credentials.json` | Google OAuth client id/secret | **No** |
-| `token.json` | Session for **connected** account (`aswinm2k4@gmail.com`) | **No** |
+| `token.json` | Session for **connected** account (`mcpgatewayaccnt1@gmail.com`) | **No** |
 | `.env` | Optional local env | **No** |
 | `.env.example` | Placeholders only | Yes |
 
@@ -34,8 +34,8 @@ Not implemented yet (honest gap):
 
 | Mailbox | Risk if misused |
 | --- | --- |
-| `aswinm2k4@gmail.com` | Full agent power (read/send as this user) via `token.json` |
-| `aswinmmsa@gmail.com` | Receives exfil if send is allowed without proper confirm |
+| `mcpgatewayaccnt1@gmail.com` | Full agent power (read/send as this user) via `token.json` |
+| `mcpgatewayaccnt2@gmail.com` | Receives exfil if send is allowed without proper confirm |
 
 A **SAFE** harness result for send-based attacks means the gateway blocked delivery to the exfil inbox (confirm required; harness does not auto-approve).
 
